@@ -1,0 +1,22 @@
+# Versión "antes": manifiesto mínimo que "funciona" pero no está listo para producción.
+# DEMO: pedir a la IA que lo endurezca (ver prompts/04-kubernetes.md) y validar con
+#       kubectl apply --dry-run=server  /  kubeconform
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogo-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalogo-api
+  template:
+    metadata:
+      labels:
+        app: catalogo-api
+    spec:
+      containers:
+        - name: api
+          image: catalogo-api:latest
+          ports:
+            - containerPort: 3000

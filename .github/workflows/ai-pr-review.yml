@@ -1,0 +1,65 @@
+# Revisión de PR asistida con IA.
+# La IA COMENTA; no aprueba, no hace merge y no tiene permisos de escritura sobre el código.
+# Modelo: Qwen a través de un endpoint compatible con la API de Anthropic.
+# Requiere el secreto QWEN_API_KEY en el repositorio.
+name: ai-pr-review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    paths:
+      - "app/**"
+      - "demos/**"
+      - ".github/workflows/**"
+
+# Usa el GITHUB_TOKEN del workflow (no la GitHub App): sus permisos son SOLO estos.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # La Action reenvía ANTHROPIC_BASE_URL a Claude Code; la base va sin /v1.
+      ANTHROPIC_BASE_URL: https://token-plan.maas.qwencloudapi.com/apps/anthropic
+      ANTHROPIC_AUTH_TOKEN: ${{ secrets.QWEN_API_KEY }}
+      ANTHROPIC_MODEL: qwen3.8-max
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: qwen3.8-flash
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@e5812cd75691ca7bbfc57c0ecf4441db3a1ab7dd # v1
+        with:
+          anthropic_api_key: ${{ secrets.QWEN_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR: #${{ github.event.pull_request.number }}
+
+            Eres un revisor DevOps senior. Revisa SOLO los cambios de este PR y comenta en español.
+            Enfócate en:
+            1. Seguridad: secretos en código, permisos excesivos, imágenes sin versión fija, root.
+            2. Confiabilidad: probes, límites de recursos, manejo de errores en scripts (set -euo pipefail).
+            3. CI/CD: acciones sin versión fija, permisos del GITHUB_TOKEN, pasos no reproducibles.
+            4. Terraform: cambios destructivos, valores hardcodeados, falta de validaciones.
+
+            Reglas:
+            - Cada hallazgo con archivo:línea, severidad (alta/media/baja) y una sugerencia concreta.
+            - Si no estás seguro, dilo explícitamente. No inventes APIs, flags ni recursos.
+            - No apruebes ni rechaces el PR: la decisión es de una persona.
+            Pasos (no uses otras herramientas):
+            1. Obtén el diff con: gh pr diff ${{ github.event.pull_request.number }}
+            2. Si necesitas contexto, lee archivos con Read, Grep o Glob (solo lectura).
+            3. Publica UN comentario resumen con: gh pr comment ${{ github.event.pull_request.number }} --body "..."
+               Formato: tabla markdown | archivo:línea | severidad | problema | sugerencia |
+          show_full_output: ${{ vars.AI_REVIEW_DEBUG == 'true' }}
+          claude_args: |
+            --model qwen3.8-max
+            --max-turns 15
+            --allowedTools "Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),mcp__github_inline_comment__create_inline_comment"

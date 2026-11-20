@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env
+*.log
+!demos/05-incidente/logs/*.log
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+.DS_Store
+
+# Respuestas de los exámenes: solo local
+EXAMENES.md
+GUION.md
+
+# Respaldo del instructor (plan B de la demo 9): solo local
+respaldo/

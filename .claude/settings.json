@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(terraform fmt:*)",
+      "Bash(terraform validate:*)",
+      "Bash(terraform plan:*)",
+      "Bash(shellcheck:*)",
+      "Bash(kubectl diff:*)",
+      "Bash(kubectl get:*)",
+      "Bash(.claude/skills/devops-estandares/scripts/validar.sh:*)",
+      "Bash(scripts/ci-monitor.sh:*)",
+      "mcp__docker-mcp__get_latest_provider_version",
+      "mcp__docker-mcp__get_latest_module_version",
+      "mcp__docker-mcp__search_providers",
+      "mcp__docker-mcp__search_modules",
+      "mcp__docker-mcp__get_provider_details",
+      "mcp__docker-mcp__get_module_details",
+      "mcp__docker-mcp__kubectl_get",
+      "mcp__docker-mcp__kubectl_describe",
+      "mcp__docker-mcp__kubectl_logs",
+      "mcp__docker-mcp__kubectl_context",
+      "mcp__docker-mcp__explain_resource",
+      "mcp__docker-mcp__list_api_resources",
+      "mcp__docker-mcp__list_pull_requests",
+      "mcp__docker-mcp__pull_request_read",
+      "mcp__docker-mcp__list_commits",
+      "mcp__docker-mcp__get_file_contents",
+      "mcp__docker-mcp__search_code"
+    ],
+    "ask": [
+      "Bash(terraform apply:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(docker push:*)",
+      "Bash(git push:*)",
+      "mcp__docker-mcp__kubectl_apply",
+      "mcp__docker-mcp__kubectl_create",
+      "mcp__docker-mcp__kubectl_patch",
+      "mcp__docker-mcp__kubectl_scale",
+      "mcp__docker-mcp__kubectl_rollout",
+      "mcp__docker-mcp__port_forward",
+      "mcp__docker-mcp__create_branch",
+      "mcp__docker-mcp__create_pull_request",
+      "mcp__docker-mcp__update_pull_request",
+      "mcp__docker-mcp__issue_write",
+      "mcp__docker-mcp__add_issue_comment"
+    ],
+    "deny": [
+      "Bash(terraform destroy:*)",
+      "Bash(terraform apply -auto-approve:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(rm -rf:*)",
+      "Read(./.env)",
+      "Read(./**/*.tfstate)",
+      "mcp__docker-mcp__kubectl_delete",
+      "mcp__docker-mcp__kubectl_generic",
+      "mcp__docker-mcp__exec_in_pod",
+      "mcp__docker-mcp__node_management",
+      "mcp__docker-mcp__cleanup",
+      "mcp__docker-mcp__install_helm_chart",
+      "mcp__docker-mcp__upgrade_helm_chart",
+      "mcp__docker-mcp__uninstall_helm_chart",
+      "mcp__docker-mcp__merge_pull_request",
+      "mcp__docker-mcp__delete_file",
+      "mcp__docker-mcp__push_files",
+      "mcp__docker-mcp__create_or_update_file",
+      "mcp__docker-mcp__create_repository",
+      "mcp__docker-mcp__fork_repository"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bloquear-produccion.sh" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/validar-archivo.sh" }
+        ]
+      }
+    ]
+  }
+}

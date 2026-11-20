@@ -1,0 +1,11 @@
+timestamp,pod,heap_mb,p95_ms,error_rate_pct,restarts
+2026-11-24T14:55:00Z,catalogo-api-6a1c,70,45,0.1,0
+2026-11-24T15:00:00Z,catalogo-api-7d9f-x2k4p,82,48,0.1,0
+2026-11-24T15:05:00Z,catalogo-api-7d9f-x2k4p,110,60,0.2,0
+2026-11-24T15:10:00Z,catalogo-api-7d9f-x2k4p,145,180,0.4,0
+2026-11-24T15:15:00Z,catalogo-api-7d9f-x2k4p,198,910,3.8,0
+2026-11-24T15:20:00Z,catalogo-api-7d9f-x2k4p,95,1200,18.0,1
+2026-11-24T15:25:00Z,catalogo-api-7d9f-m8q1z,60,5000,41.0,1
+2026-11-24T15:30:00Z,catalogo-api-7d9f-m8q1z,130,2400,22.0,1
+2026-11-24T15:35:00Z,catalogo-api-5c4b-q7w2e,72,52,1.1,0
+2026-11-24T15:40:00Z,catalogo-api-5c4b-q7w2e,74,47,0.2,0

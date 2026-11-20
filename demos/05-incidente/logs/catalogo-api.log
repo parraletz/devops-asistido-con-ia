@@ -1,0 +1,25 @@
+2026-11-24T14:58:02Z {"level":"info","msg":"deploy iniciado","version":"1.4.0","replicas":2,"by":"ci-pipeline"}
+2026-11-24T14:58:41Z {"level":"info","msg":"catalogo-api escuchando","port":3000,"version":"1.4.0","pod":"catalogo-api-7d9f-x2k4p"}
+2026-11-24T14:58:44Z {"level":"info","msg":"catalogo-api escuchando","port":3000,"version":"1.4.0","pod":"catalogo-api-7d9f-m8q1z"}
+2026-11-24T14:59:10Z {"level":"info","msg":"cache de recomendaciones habilitado","feature_flag":"recs_cache","ttl":"none","max_entries":"unbounded"}
+2026-11-24T15:02:15Z {"level":"info","method":"GET","path":"/productos","status":200,"ms":12}
+2026-11-24T15:05:33Z {"level":"info","method":"GET","path":"/productos/p-002/recomendaciones","status":200,"ms":38}
+2026-11-24T15:11:02Z {"level":"warn","msg":"heap alto","heap_used_mb":148,"limit_mb":256,"pod":"catalogo-api-7d9f-x2k4p"}
+2026-11-24T15:14:47Z {"level":"warn","method":"GET","path":"/productos/p-001/recomendaciones","status":200,"ms":912}
+2026-11-24T15:16:20Z {"level":"warn","msg":"heap alto","heap_used_mb":201,"limit_mb":256,"pod":"catalogo-api-7d9f-x2k4p"}
+2026-11-24T15:17:05Z {"level":"warn","msg":"event loop lag","lag_ms":740,"pod":"catalogo-api-7d9f-x2k4p"}
+2026-11-24T15:18:31Z {"level":"error","method":"GET","path":"/productos","status":503,"ms":5002,"err":"upstream timeout","pod":"catalogo-api-7d9f-x2k4p"}
+2026-11-24T15:18:58Z {"level":"warn","msg":"heap alto","heap_used_mb":239,"limit_mb":256,"pod":"catalogo-api-7d9f-x2k4p"}
+2026-11-24T15:19:12Z {"level":"error","msg":"container terminated","reason":"OOMKilled","exit_code":137,"pod":"catalogo-api-7d9f-x2k4p","restarts":1}
+2026-11-24T15:19:40Z {"level":"info","msg":"catalogo-api escuchando","port":3000,"version":"1.4.0","pod":"catalogo-api-7d9f-x2k4p"}
+2026-11-24T15:21:03Z {"level":"warn","msg":"heap alto","heap_used_mb":187,"limit_mb":256,"pod":"catalogo-api-7d9f-m8q1z"}
+2026-11-24T15:23:44Z {"level":"error","method":"GET","path":"/productos/p-003/recomendaciones","status":503,"ms":5001,"err":"upstream timeout","pod":"catalogo-api-7d9f-m8q1z"}
+2026-11-24T15:24:30Z {"level":"error","msg":"container terminated","reason":"OOMKilled","exit_code":137,"pod":"catalogo-api-7d9f-m8q1z","restarts":1}
+2026-11-24T15:24:31Z {"level":"error","msg":"readiness probe failed","pod":"catalogo-api-7d9f-x2k4p","path":"/health/ready","status":503}
+2026-11-24T15:24:35Z {"level":"error","msg":"no hay endpoints listos","service":"catalogo-api","ready":0,"total":2}
+2026-11-24T15:25:10Z {"level":"warn","msg":"alerta disparada","alert":"CatalogoApiHighErrorRate","error_rate":"41%","slo":"99.5%"}
+2026-11-24T15:27:02Z {"level":"info","msg":"on-call reconoce la alerta","who":"oncall-sre"}
+2026-11-24T15:34:18Z {"level":"info","msg":"feature flag deshabilitado","feature_flag":"recs_cache","by":"oncall-sre"}
+2026-11-24T15:35:40Z {"level":"info","msg":"rollout restart","deployment":"catalogo-api","by":"oncall-sre"}
+2026-11-24T15:37:02Z {"level":"info","msg":"heap estable","heap_used_mb":74,"limit_mb":256,"pod":"catalogo-api-5c4b-q7w2e"}
+2026-11-24T15:41:00Z {"level":"info","msg":"alerta resuelta","alert":"CatalogoApiHighErrorRate","error_rate":"0.2%"}
