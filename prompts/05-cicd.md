@@ -51,4 +51,4 @@ Lo mismo corre dentro de GitHub Actions: es lo que hace `anthropics/claude-code-
 - El job de IA solo tiene `pull-requests: write` para comentar; no puede hacer push ni merge.
 - Fijar acciones por SHA (no solo por tag) para mitigar ataques a la cadena de suministro.
 - Nunca usar `pull_request_target` + checkout del código del PR con secretos.
-- En CI la revisión la hace **Qwen** (`qwen3.8-max`) a través de un endpoint compatible con Anthropic: mismo harness (Claude Code), otro modelo. Se configura con `ANTHROPIC_BASE_URL` + secreto `QWEN_API_KEY` en `ai-pr-review.yml`. Tarda ~4-5 min y ~11 turnos; respaldo: PR #1.
+- En CI la revisión la hace **Qwen** (`qwen4-max`) a través de un endpoint compatible con Anthropic: mismo harness (Claude Code), otro modelo. Se configura con `ANTHROPIC_BASE_URL` + secreto `QWEN_API_KEY` en `ai-pr-review.yml`; el modelo se cambia con la variable `AI_REVIEW_MODEL`. Tarda ~2.5 min y ~12 turnos; respaldo: PR #1, que tiene la misma revisión hecha por 4 modelos (qwen3.8-max, qwen3.8-flash, deepseek-v4-pro y qwen4-max) para compararlas.

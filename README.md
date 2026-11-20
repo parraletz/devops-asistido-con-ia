@@ -79,6 +79,6 @@ terraform destroy
 | `BACKUP_PASSPHRASE_FILE` | Archivo con la frase de cifrado de `backup.sh` | — (obligatoria) |
 | `RETENCION_DIAS` | Retención de respaldos | `7` |
 | `QWEN_API_KEY` | Secreto del repo para `ai-pr-review.yml` | — |
-| `AI_REVIEW_MODEL` | Variable del repo: modelo de la revisión (`qwen3.8-max` más profundo, `qwen3.8-flash` ~3× más rápido) | `qwen3.8-max` |
+| `AI_REVIEW_MODEL` | Variable del repo: modelo de la revisión. Probados en el PR de demo: `qwen4-max` (el más preciso, ~2.5 min), `qwen3.8-flash`, `qwen3.8-max`, `deepseek-v4-pro` | `qwen4-max` |
 
 Nunca subas secretos al repositorio. `demos/01-dockerfile/Dockerfile.antes` y `demos/02-bash/backup.antes.sh` contienen secretos **falsos** a propósito para la demo.

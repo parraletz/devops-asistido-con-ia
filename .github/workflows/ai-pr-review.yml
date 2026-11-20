@@ -1,6 +1,6 @@
 # Revisión de PR asistida con IA.
 # La IA COMENTA; no aprueba, no hace merge y no tiene permisos de escritura sobre el código.
-# Modelo: Qwen a través de un endpoint compatible con la API de Anthropic.
+# Modelo: Qwen (qwen4-max por defecto) a través de un endpoint compatible con la API de Anthropic.
 # Requiere el secreto QWEN_API_KEY en el repositorio.
 name: ai-pr-review
 
@@ -27,7 +27,7 @@ jobs:
       ANTHROPIC_BASE_URL: https://token-plan.maas.qwencloudapi.com/apps/anthropic
       ANTHROPIC_AUTH_TOKEN: ${{ secrets.QWEN_API_KEY }}
       # Modelo configurable sin tocar el workflow: gh variable set AI_REVIEW_MODEL --body qwen3.8-flash
-      ANTHROPIC_MODEL: ${{ vars.AI_REVIEW_MODEL || 'qwen3.8-max' }}
+      ANTHROPIC_MODEL: ${{ vars.AI_REVIEW_MODEL || 'qwen4-max' }}
       ANTHROPIC_DEFAULT_HAIKU_MODEL: qwen3.8-flash
       CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
     steps:
@@ -61,6 +61,6 @@ jobs:
                Formato: tabla markdown | archivo:línea | severidad | problema | sugerencia |
           show_full_output: ${{ vars.AI_REVIEW_DEBUG == 'true' }}
           claude_args: |
-            --model ${{ vars.AI_REVIEW_MODEL || 'qwen3.8-max' }}
+            --model ${{ vars.AI_REVIEW_MODEL || 'qwen4-max' }}
             --max-turns 15
             --allowedTools "Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),mcp__github_inline_comment__create_inline_comment"
