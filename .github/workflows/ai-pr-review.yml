@@ -26,7 +26,8 @@ jobs:
       # La Action reenvía ANTHROPIC_BASE_URL a Claude Code; la base va sin /v1.
       ANTHROPIC_BASE_URL: https://token-plan.maas.qwencloudapi.com/apps/anthropic
       ANTHROPIC_AUTH_TOKEN: ${{ secrets.QWEN_API_KEY }}
-      ANTHROPIC_MODEL: qwen3.8-max
+      # Modelo configurable sin tocar el workflow: gh variable set AI_REVIEW_MODEL --body qwen3.8-flash
+      ANTHROPIC_MODEL: ${{ vars.AI_REVIEW_MODEL || 'qwen3.8-max' }}
       ANTHROPIC_DEFAULT_HAIKU_MODEL: qwen3.8-flash
       CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
     steps:
@@ -60,6 +61,6 @@ jobs:
                Formato: tabla markdown | archivo:línea | severidad | problema | sugerencia |
           show_full_output: ${{ vars.AI_REVIEW_DEBUG == 'true' }}
           claude_args: |
-            --model qwen3.8-max
+            --model ${{ vars.AI_REVIEW_MODEL || 'qwen3.8-max' }}
             --max-turns 15
             --allowedTools "Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),mcp__github_inline_comment__create_inline_comment"
