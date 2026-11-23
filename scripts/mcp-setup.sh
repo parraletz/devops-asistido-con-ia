@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Crea el profile "curso-devops" del Docker MCP Gateway con tres servidores del
+# Crea el profile "curso_devops" del Docker MCP Gateway con tres servidores del
 # catálogo oficial (hub.docker.com/mcp): terraform, kubernetes y github-official.
 #
 # Requiere Docker Desktop con MCP Toolkit (4.59+) o el plugin docker-mcp.
@@ -8,7 +8,7 @@
 #   Recomendado: uno de un ServiceAccount de SOLO LECTURA, no el de admin.
 set -euo pipefail
 
-readonly PERFIL="curso-devops"
+readonly PERFIL="curso_devops"
 readonly CATALOGO="mcp/docker-mcp-catalog"
 readonly KUBECONFIG_MCP="${1:-$HOME/.kube/config}"
 
@@ -21,11 +21,17 @@ fi
 echo "== catálogo oficial"
 docker mcp catalog pull "$CATALOGO"
 
+# Ojo: los comandos usan el ID del profile, no el nombre. Docker convierte "-" en "_" al
+# generar el ID, así que usamos un nombre que ya es un ID válido y lo fijamos con --id.
 echo "== profile $PERFIL"
-docker mcp profile create --name "$PERFIL" \
-  --server "catalog://$CATALOGO/terraform" \
-  --server "catalog://$CATALOGO/kubernetes" \
-  --server "catalog://$CATALOGO/github-official"
+if docker mcp profile show "$PERFIL" >/dev/null 2>&1; then
+  echo "ya existe: se reutiliza"
+else
+  docker mcp profile create --name "$PERFIL" --id "$PERFIL" \
+    --server "catalog://$CATALOGO/terraform" \
+    --server "catalog://$CATALOGO/kubernetes" \
+    --server "catalog://$CATALOGO/github-official"
+fi
 
 echo "== kubeconfig para el servidor de kubernetes"
 docker mcp profile config "$PERFIL" --set "kubernetes.config_path=$KUBECONFIG_MCP"
@@ -50,11 +56,15 @@ docker mcp profile tools "$PERFIL" \
 
 cat <<'EOF'
 
-Listo. Falta autorizar GitHub (OAuth) una sola vez:
-  docker mcp oauth --help        # o Docker Desktop → MCP Toolkit → github-official → OAuth
+Listo. Falta:
+  1. Autorizar GitHub (OAuth) una sola vez:
+       docker mcp oauth authorize github
+  2. Permitir que el gateway monte el kubeconfig (solo lectura). En la terminal donde corres claude:
+       export MCP_GATEWAY_DOCKER_BIND_ALLOWED_PATHS=<la misma ruta del kubeconfig>
+     Sin esto el servidor de Kubernetes no arranca ("outside allowed roots").
 
 Verificar:
-  docker mcp profile show curso-devops
-  docker mcp tools ls
+  docker mcp profile show curso_devops
+  docker mcp tools ls --gateway-arg=--profile=curso_devops
   claude   →  /mcp   (servidor "docker-mcp" conectado)
 EOF

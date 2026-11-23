@@ -5,7 +5,7 @@ Todo vive en el repo y viaja en git.
 
 ```
 AGENTS.md                 ← contexto: stack, comandos, reglas (se carga en cada sesión)
-.mcp.json                 ← herramientas: Docker MCP Gateway (profile "curso-devops")
+.mcp.json                 ← herramientas: Docker MCP Gateway (profile "curso_devops")
 .claude/settings.json     ← límites: permisos allow / ask / deny (Bash y herramientas MCP) + hooks
 .claude/hooks/            ← guardrails programables (demo 8)
 .claude/skills/           ← estándares del equipo (demo 7)
@@ -24,15 +24,20 @@ El **MCP Gateway** los arranca en contenedores aislados bajo demanda y los expon
 
 ```bash
 # Requiere Docker Desktop 4.59+ con MCP Toolkit
-scripts/mcp-setup.sh ~/.kube/config        # crea el profile curso-devops (ideal: kubeconfig de solo lectura)
-docker mcp profile show curso-devops
-docker mcp tools ls | head
+scripts/mcp-setup.sh ~/.kube/config        # crea el profile curso_devops (ideal: kubeconfig de solo lectura)
+docker mcp oauth authorize github          # una vez: abre el navegador para autorizar github-official
+
+# El gateway NO monta archivos del host fuera de /tmp salvo que lo autorices (de solo lectura).
+# Exporta esto en la terminal donde arrancas `claude`, con la MISMA ruta que le diste al script:
+export MCP_GATEWAY_DOCKER_BIND_ALLOWED_PATHS=~/.kube/config
+docker mcp tools ls --gateway-arg=--profile=curso_devops | grep kubectl_get   # debe aparecer
 ```
+Si falta el export, el gateway arranca igual pero **sin** el servidor de Kubernetes (`Can't start kubernetes: … outside allowed roots`).
 
 `.mcp.json` solo dice "arranca el gateway con este profile":
 ```json
 { "mcpServers": { "docker-mcp": { "command": "docker",
-  "args": ["mcp", "gateway", "run", "--profile", "curso-devops"] } } }
+  "args": ["mcp", "gateway", "run", "--profile", "curso_devops"] } } }
 ```
 Sin Docker MCP Toolkit: `claude --mcp-config .mcp.terraform-directo.json` (solo el servidor de Terraform en un contenedor).
 
@@ -72,4 +77,5 @@ Comparar: preguntar lo mismo **sin** MCP (`claude --strict-mcp-config`): la vers
 - `AGENTS.md` es el onboarding de la IA: lo que le explicarías a un nuevo integrante del equipo. Es un estándar abierto: lo leen Claude Code, GitHub Copilot, Cursor, Codex y otros. Claude Code lo carga cuando no hay `CLAUDE.md` (compruébalo con `/memory`).
 - **Los servidores MCP son dependencias**: imágenes del catálogo firmadas por Docker, con SBOM, fijadas por digest, cada una en su contenedor (1 CPU / 2 GB, sin acceso al disco salvo lo que montas). El gateway bloquea secretos en llamadas y respuestas (`--block-secrets`, activo por defecto).
 - **Dos capas de guardrails para MCP:** el profile apaga herramientas peligrosas (`kubectl_delete`, `exec_in_pod`, `merge_pull_request`…) y `.claude/settings.json` las niega otra vez. Los hooks de `Bash` no ven las llamadas MCP: por eso los permisos por herramienta importan.
+- **Ojo con las herramientas internas del gateway** (`mcp-add`, `mcp-exec`, `code-mode`, `mcp-config-set`…, feature `dynamic-tools`, activa por defecto): con `mcp-exec` la IA podría llamar a `kubectl_apply` *a través* de otra herramienta y saltarse el `ask` de Claude Code; con `mcp-add`, sumar servidores que no revisaste. `.claude/settings.json` las niega todas. Comprobarlo: `docker mcp tools ls --gateway-arg=--profile=curso_devops | grep mcp-`.
 - El servidor de Kubernetes usa **el kubeconfig que le montes**: con uno de admin, la IA tiene admin. Para la clase, un ServiceAccount de solo lectura.

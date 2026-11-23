@@ -2,7 +2,7 @@
   "mcpServers": {
     "docker-mcp": {
       "command": "docker",
-      "args": ["mcp", "gateway", "run", "--profile", "curso-devops"]
+      "args": ["mcp", "gateway", "run", "--profile", "curso_devops"]
     }
   }
 }

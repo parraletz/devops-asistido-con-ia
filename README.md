@@ -17,9 +17,9 @@ Material del curso en vivo de **Código Facilito · Semana del Aprendizaje**
 | `demos/05-incidente/` | Logs, métricas y plantilla de postmortem de un incidente simulado |
 | `.github/workflows/ci.yml` | CI: tests, hadolint, shellcheck, terraform validate, build + smoke test |
 | `.github/workflows/ai-pr-review.yml` | Revisión de PR con IA (solo comenta, no aprueba) |
-| `scripts/mcp-setup.sh` | Crea el profile `curso-devops` del Docker MCP Gateway (terraform, kubernetes, github-official) |
+| `scripts/mcp-setup.sh` | Crea el profile `curso_devops` del Docker MCP Gateway (terraform, kubernetes, github-official) |
 | `AGENTS.md` | Contexto del proyecto para cualquier agente (Claude Code, Copilot, Cursor, Codex…): stack, comandos y reglas |
-| `.mcp.json` | Docker MCP Gateway con el profile `curso-devops` ([catálogo MCP de Docker](https://hub.docker.com/mcp)) |
+| `.mcp.json` | Docker MCP Gateway con el profile `curso_devops` ([catálogo MCP de Docker](https://hub.docker.com/mcp)) |
 | `.mcp.terraform-directo.json` | Alternativa sin Docker MCP Toolkit: solo el servidor de Terraform en un contenedor |
 | `.claude/settings.json` | Permisos allow / ask / deny (comandos y herramientas MCP) y registro de hooks |
 | `.claude/hooks/` | Guardrails: bloquear producción y `apply` sin plan; validar cada archivo que escribe la IA |

@@ -67,7 +67,15 @@
       "mcp__docker-mcp__push_files",
       "mcp__docker-mcp__create_or_update_file",
       "mcp__docker-mcp__create_repository",
-      "mcp__docker-mcp__fork_repository"
+      "mcp__docker-mcp__fork_repository",
+      "mcp__docker-mcp__mcp-add",
+      "mcp__docker-mcp__mcp-remove",
+      "mcp__docker-mcp__mcp-config-set",
+      "mcp__docker-mcp__mcp-exec",
+      "mcp__docker-mcp__code-mode",
+      "mcp__docker-mcp__mcp-activate-profile",
+      "mcp__docker-mcp__mcp-create-profile",
+      "mcp__docker-mcp__mcp-find"
     ]
   },
   "hooks": {
@@ -75,7 +83,10 @@
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bloquear-produccion.sh" }
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bloquear-produccion.sh"
+          }
         ]
       }
     ],
@@ -83,7 +94,10 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/validar-archivo.sh" }
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/validar-archivo.sh"
+          }
         ]
       }
     ]
