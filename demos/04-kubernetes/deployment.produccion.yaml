@@ -1,0 +1,131 @@
+# Versión endurecida de deployment.antes.yaml para producción.
+# Validar: kubeconform -strict -summary deployment.produccion.yaml
+#          kubectl apply --dry-run=server -f deployment.produccion.yaml && kubectl diff -f deployment.produccion.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogo-api
+  labels:
+    app.kubernetes.io/name: catalogo-api
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  # 2 réplicas: tolera la caída de un pod o de un nodo sin cortar el servicio.
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: catalogo-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Nunca baja de 2 pods listos: primero levanta uno nuevo y espera su readiness.
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: catalogo-api
+        app.kubernetes.io/version: "1.0.0"
+    spec:
+      # La app no habla con la API de Kubernetes: no necesita token.
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000   # usuario "node" de la imagen
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      # Reparte las réplicas en nodos distintos cuando se puede (no bloquea si hay un solo nodo).
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: catalogo-api
+      containers:
+        - name: api
+          # Tag fijo; en producción usa la imagen del registro, idealmente con digest (@sha256:...).
+          image: catalogo-api:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: APP_VERSION
+              value: "1.0.0"
+          resources:
+            requests:
+              cpu: 50m        # estimado para una API ligera: AJUSTAR con métricas
+              memory: 128Mi   # ~80Mi observados + ~50% de margen
+            limits:
+              memory: 256Mi   # techo ante fugas/picos; si se supera -> OOMKilled
+              # Sin límite de CPU a propósito: evita throttling; el request garantiza el mínimo.
+          livenessProbe:
+            # Solo comprueba que el proceso responde; si falla 3 veces (~30s) se reinicia.
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          readinessProbe:
+            # Decide si el pod recibe tráfico; más frecuente para sacarlo rápido del Service.
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              # Da tiempo a que el pod salga de los endpoints antes de recibir SIGTERM.
+              exec:
+                command: ["sleep", "5"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            # Único directorio escribible (rootfs de solo lectura); por si node/npm escriben temporales.
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalogo-api
+  labels:
+    app.kubernetes.io/name: catalogo-api
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: catalogo-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# Con 2 réplicas, garantiza que un drain/mantenimiento de nodos no saque ambas a la vez.
+# minAvailable: 1 deja desalojar una sola réplica cada vez; el rolling update no se ve afectado.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: catalogo-api
+  labels:
+    app.kubernetes.io/name: catalogo-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: catalogo-api
